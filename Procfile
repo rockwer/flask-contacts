@@ -1,1 +1,1 @@
-web: gunicorn contacts:contacts
+web: gunicorn app:contacts
