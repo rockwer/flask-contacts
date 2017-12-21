@@ -4,8 +4,14 @@
     </head>
     <body>
         <ul>
-        <li><a href="#">Contacts</a></li>
-        <li><a href="#">Add contact</a></li>
+        <li><a href="{{ url_for('all_contacts') }}">All contacts</a></li>
+        <li><a href="{{ url_for('add_contact_form') }}">Add contact (Form)</a></li><br>
+            <ul>
+                <li>Add contact by POST request: /api/add-contact/</li><br>Body: name, phone, email<br><br>
+                <li>Serach by UserName: /contacts/username</li>
+                <li>Delete by _id: /delete/id</li>
+            </ul>
         </ul>
+        
     </body>
 </html>

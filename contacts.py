@@ -10,44 +10,47 @@ app = Flask(__name__)
 app.config.from_pyfile('the-config.cfg')
 app.debug = True
 app.secret_key = '23sdf8794sdfua90f0a'
-mongo = MongoEngine(app)
 csrf = CSRFProtect(app)
+mongo = MongoEngine(app)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/contacts/')
+@app.route('/contacts/', methods=['GET'])
 def all_contacts():
     contacts = Contact.objects.all()
     contacts_output = []
     for contact in contacts:
-        print(contact)
         contacts_output.append({'id': str(contact.id), 'name': contact.name, 'phone': contact.phone, 'email': contact.email, 'registration_date': contact.registration_date})
     return jsonify({'contacts': contacts_output})
     
 if __name__ == '__main__':
     app.run(debug=True)
 
-@app.route('/contacts/<username>')
+@app.route('/contacts/<username>', methods=['GET'])
 def get_contact(username):
     try:
-        contact = Contact.objects.get(name = username)
-        contacts_output = {'id': str(contact.id), 'name': contact.name, 'phone': contact.phone, 'email': contact.email, 'registration_date': contact.registration_date}
+        contacts = Contact.objects.filter(name = username)
+        contacts_output = []
+        for contact in contacts:
+            contacts_output.append({'id': str(contact.id), 'name': contact.name, 'phone': contact.phone, 'email': contact.email, 'registration_date': contact.registration_date})
         return jsonify({'contacts': contacts_output})
     except Contact.DoesNotExist:
         return jsonify({'error': 'no contact with this name'})
 
-@app.route('/add-contact/<name>&<phone>&<email>')
-def add_contact(name, phone, email):
-    connect(mongo)
-    new_contact = Contact()
-    new_contact.name = name
-    new_contact.phone = phone
-    new_contact.email = email
-    new_contact.registration_date = str(date.today())
-    new_contact.save()
-    return 'Succesful'
+@csrf.exempt
+@app.route('/api/add-contact/', methods=['POST'])
+def add_contact():
+    if request.method == 'POST':
+        connect(mongo)
+        new_contact = Contact()
+        new_contact.name = request.form.get('name')
+        new_contact.phone = request.form.get('phone')
+        new_contact.email = request.form.get('email')
+        new_contact.registration_date = str(date.today())
+        new_contact.save()
+        return jsonify({'error': 'succesful'})
     
 if __name__ == '__main__':
     app.run(debug=True)
@@ -69,7 +72,7 @@ def add_contact_form():
 if __name__ == '__main__':
     app.run(debug=True)
     
-@app.route('/delete/<id>')
+@app.route('/delete/<id>', methods=['GET'])
 def delete_contact(id):
     try:
         contacts = Contact.objects.get(id = id).delete()
