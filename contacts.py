@@ -50,7 +50,7 @@ def add_contact():
         new_contact.email = request.form.get('email')
         new_contact.registration_date = str(date.today())
         new_contact.save()
-        return jsonify({'error': 'succesful'})
+        return jsonify({'status': 'succesful'})
     
 if __name__ == '__main__':
     app.run(debug=True)
